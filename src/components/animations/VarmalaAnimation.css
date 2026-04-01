@@ -1,0 +1,417 @@
+/* ═══════════════════════════════════════════════
+   PREMIUM VARMALA EXCHANGE ANIMATION
+   GPU-accelerated transforms, single play, smooth easing
+   ═══════════════════════════════════════════════ */
+
+.va-transparent-root {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(220px, 40vh, 500px);
+  margin: 0 auto;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.va-transparent-root.phase-waiting { opacity: 0; }
+.va-transparent-root:not(.phase-waiting) { opacity: 1; }
+
+/* ── FLOOR GLOW ── */
+.va-floor-reflection {
+  position: absolute;
+  bottom: -5px;
+  left: 5%;
+  width: 90%;
+  height: 30px;
+  background: radial-gradient(ellipse at center, hsl(var(--gold-primary)/0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 1.2s ease-out 0.5s;
+  z-index: 1;
+}
+.va-transparent-root:not(.phase-waiting) .va-floor-reflection {
+  opacity: 0.6;
+}
+
+/* ── CHARACTERS CONTAINER ── */
+.va-characters-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* ── PERSON BASE ── */
+.va-person {
+  position: absolute;
+  bottom: 0;
+  height: 95%;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.va-person-img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom center;
+  image-rendering: auto;
+}
+
+/* ══════════════════════════════════════════
+   GPU-ACCELERATED WALKING (translateX)
+   ══════════════════════════════════════════ */
+
+/* ── BRIDE — left side ── */
+.va-bride {
+  left: 0;
+  transform: translateX(-135%);
+  opacity: 0;
+}
+.va-bride.phase-walking {
+  animation: va-walk-bride 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.va-bride.phase-meeting,
+.va-bride.phase-complete {
+  transform: translateX(5%);
+  opacity: 1;
+}
+
+@keyframes va-walk-bride {
+  0%   { transform: translateX(-135%); opacity: 0; }
+  8%   { opacity: 1; }
+  100% { transform: translateX(5%);    opacity: 1; }
+}
+
+/* ── GROOM — right side ── */
+.va-groom {
+  right: 0;
+  transform: translateX(135%);
+  opacity: 0;
+}
+.va-groom.phase-walking {
+  animation: va-walk-groom 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.va-groom.phase-meeting,
+.va-groom.phase-complete {
+  transform: translateX(-5%);
+  opacity: 1;
+}
+
+@keyframes va-walk-groom {
+  0%   { transform: translateX(135%); opacity: 0; }
+  8%   { opacity: 1; }
+  100% { transform: translateX(-5%);  opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════
+   ❤️  HEART — blooms in center when they meet
+   ══════════════════════════════════════════════ */
+
+.va-heart-wrapper {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  z-index: 20;
+  width: clamp(60px, 12vw, 120px);
+  height: clamp(60px, 12vw, 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+/* Heart pop-in — smoother elastic */
+.va-heart-wrapper.va-heart-visible {
+  animation: va-heart-pop 1.2s cubic-bezier(0.22, 1.2, 0.36, 1) 0.3s forwards;
+}
+
+@keyframes va-heart-pop {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0) rotate(-15deg); }
+  50%  { opacity: 1; transform: translateX(-50%) scale(1.15) rotate(3deg); }
+  75%  { transform: translateX(-50%) scale(0.95) rotate(-1deg); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+/* Continuous heartbeat pulse */
+.va-heart-wrapper.va-heart-visible .va-heart-svg {
+  animation: va-heart-pulse 1.4s ease-in-out 1.5s infinite;
+}
+
+@keyframes va-heart-pulse {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(232,25,44,0.7)); }
+  15%      { transform: scale(1.12); filter: drop-shadow(0 0 25px rgba(232,25,44,0.9)); }
+  30%      { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(232,25,44,0.7)); }
+  45%      { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(232,25,44,0.8)); }
+}
+
+/* SVG heart */
+.va-heart-svg {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 14px rgba(232,25,44,0.9));
+}
+
+/* ── GLOW RINGS around heart ── */
+.va-heart-glow {
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 25, 44, 0.4) 0%,
+    rgba(232, 25, 44, 0.12) 40%,
+    transparent 70%
+  );
+  animation: va-glow-breathe 1.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+.va-heart-glow-2 {
+  inset: -70%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 80, 100, 0.15) 0%,
+    rgba(255, 80, 100, 0.03) 50%,
+    transparent 70%
+  );
+  animation: va-glow-breathe 1.8s ease-in-out 0.5s infinite;
+}
+
+@keyframes va-glow-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+
+/* ── HEART SPARKLES ── */
+.va-heart-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.va-sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ffcc00 70%, transparent 100%);
+  animation: va-sparkle-orbit 1.6s ease-out forwards;
+  box-shadow: 0 0 6px 2px rgba(255, 204, 0, 0.6);
+}
+
+@keyframes va-sparkle-orbit {
+  0%   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0px) scale(1); }
+  50%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--dist))) scale(0.1); }
+}
+
+/* ── LOVE PARTICLES ── */
+.va-love-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 18;
+  overflow: hidden;
+}
+
+.va-love-particle {
+  position: absolute;
+  bottom: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 100, 120, 0.9) 0%, rgba(232, 25, 44, 0.5) 100%);
+  box-shadow: 0 0 8px rgba(232, 25, 44, 0.4);
+  animation: va-love-float linear infinite;
+}
+
+@keyframes va-love-float {
+  0%   { transform: translateY(0) scale(1); opacity: 0.8; }
+  50%  { opacity: 0.6; }
+  100% { transform: translateY(-120px) scale(0.3); opacity: 0; }
+}
+
+/* ── MAGICAL FALLING PETALS — wedding marigold/red tones ── */
+.va-magic-petals {
+  position: absolute;
+  inset: -30px -15% 0 -15%;
+  pointer-events: none;
+  z-index: 15;
+  overflow: hidden;
+}
+
+.va-magic-petal-single {
+  position: absolute;
+  top: -15px;
+  animation: va-magic-fall linear infinite;
+  opacity: 0.85;
+}
+
+@keyframes va-magic-fall {
+  0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0.8; }
+  25%  { transform: translateY(60px) rotate(90deg) translateX(15px); }
+  50%  { transform: translateY(120px) rotate(180deg) translateX(-10px); opacity: 0.6; }
+  75%  { transform: translateY(180px) rotate(270deg) translateX(8px); }
+  100% { transform: translateY(250px) rotate(360deg) translateX(0); opacity: 0; }
+}
+
+.va-petal-shape {
+  width: 12px;
+  height: 12px;
+  border-radius: 50% 0 50% 50%;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Marigold/red wedding tones */
+.petal-color-0 { background: radial-gradient(circle at 30% 30%, #ff9933, #e65c00); }
+.petal-color-1 { background: radial-gradient(circle at 30% 30%, #ffd700, #daa520); }
+.petal-color-2 { background: radial-gradient(circle at 30% 30%, #ff6347, #cc3300); }
+.petal-color-3 { background: radial-gradient(circle at 30% 30%, #ffb347, #ff8c00); }
+
+/* ════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ════════════════════════════ */
+
+/* ── MOBILE (≤ 500px) ── */
+@media (max-width: 500px) {
+  .va-transparent-root {
+    height: clamp(180px, 35vh, 320px);
+  }
+
+  .va-person {
+    height: 90%;
+  }
+
+  .va-bride.phase-meeting,
+  .va-bride.phase-complete {
+    transform: translateX(-5%);
+  }
+  .va-groom.phase-meeting,
+  .va-groom.phase-complete {
+    transform: translateX(5%);
+  }
+
+  @keyframes va-walk-bride {
+    0%   { transform: translateX(-140%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(-5%);   opacity: 1; }
+  }
+  @keyframes va-walk-groom {
+    0%   { transform: translateX(140%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(5%);   opacity: 1; }
+  }
+
+  .va-heart-wrapper {
+    width: clamp(45px, 12vw, 70px);
+    height: clamp(45px, 12vw, 70px);
+    top: 10%;
+  }
+}
+
+/* ── SHORT VIEWPORT ── */
+@media (min-width: 501px) and (max-height: 650px) {
+  .va-transparent-root {
+    height: clamp(180px, 32vh, 280px);
+  }
+
+  .va-person {
+    height: 92%;
+  }
+
+  .va-heart-wrapper {
+    width: clamp(50px, 10vw, 80px);
+    height: clamp(50px, 10vw, 80px);
+    top: 5%;
+  }
+}
+
+/* ── TABLET (501px – 1199px) ── */
+@media (min-width: 501px) and (max-width: 1199px) and (min-height: 651px) {
+  .va-transparent-root {
+    height: clamp(250px, 40vh, 450px);
+  }
+
+  .va-bride.phase-meeting,
+  .va-bride.phase-complete {
+    transform: translateX(2%);
+  }
+  .va-groom.phase-meeting,
+  .va-groom.phase-complete {
+    transform: translateX(-2%);
+  }
+
+  @keyframes va-walk-bride {
+    0%   { transform: translateX(-140%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(2%);    opacity: 1; }
+  }
+  @keyframes va-walk-groom {
+    0%   { transform: translateX(140%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(-2%);  opacity: 1; }
+  }
+
+  .va-heart-wrapper {
+    width: clamp(60px, 10vw, 100px);
+    height: clamp(60px, 10vw, 100px);
+    top: 12%;
+  }
+}
+
+/* ── DESKTOP (≥ 1200px) ── */
+@media (min-width: 1200px) {
+  .va-transparent-root {
+    height: clamp(350px, 48vh, 550px);
+  }
+
+  .va-person {
+    height: 100%;
+  }
+
+  .va-bride.phase-meeting,
+  .va-bride.phase-complete {
+    transform: translateX(8%);
+  }
+  .va-groom.phase-meeting,
+  .va-groom.phase-complete {
+    transform: translateX(-8%);
+  }
+
+  @keyframes va-walk-bride {
+    0%   { transform: translateX(-140%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(8%);    opacity: 1; }
+  }
+  @keyframes va-walk-groom {
+    0%   { transform: translateX(135%); opacity: 0; }
+    8%   { opacity: 1; }
+    100% { transform: translateX(-8%);  opacity: 1; }
+  }
+
+  .va-heart-wrapper {
+    width: clamp(90px, 8vw, 130px);
+    height: clamp(90px, 8vw, 130px);
+    top: 12%;
+  }
+}
